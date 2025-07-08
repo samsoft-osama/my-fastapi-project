@@ -1,46 +1,49 @@
-# FastAPI Food Booking Order Management System
+# 🍕 FastAPI Food Booking Order Management System
 
-A comprehensive food ordering and management system built with FastAPI, SQLAlchemy, and JWT authentication using PostgreSQL database.
+A modern, scalable food ordering and management system built with **FastAPI**, **SQLAlchemy**, and **PostgreSQL**. Features JWT authentication, comprehensive API endpoints, and a complete order lifecycle management system.
 
-## Features
+## ✨ Features
 
-- **User Authentication**: JWT-based authentication with user registration and login
-- **Menu Management**: CRUD operations for menu items with categories and availability
-- **Order Management**: Complete order lifecycle from creation to delivery
-- **User Management**: User profiles and order history
-- **RESTful API**: Clean, well-documented API endpoints
-- **Database**: PostgreSQL database with SQLAlchemy ORM
-- **Testing**: Comprehensive test suite with pytest
+- 🔐 **Secure Authentication** - JWT-based user authentication with password hashing
+- 📋 **Menu Management** - Full CRUD operations for menu items with categories
+- 🛒 **Order Management** - Complete order lifecycle (pending → confirmed → preparing → delivered)
+- 👤 **User Management** - User profiles, order history, and account management
+- 🚀 **RESTful API** - Clean, well-documented API endpoints with automatic documentation
+- 🗄️ **PostgreSQL Database** - Robust, scalable database with SQLAlchemy ORM
+- 🧪 **Comprehensive Testing** - Full test suite with pytest
+- 🔧 **Environment Configuration** - Flexible configuration management
+- 📚 **Auto-generated Docs** - Interactive API documentation with Swagger UI
 
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 food_order_system/
-├── main.py              # FastAPI application with all endpoints
-├── database.py          # Database configuration and session management
-├── models.py            # SQLAlchemy models for database tables
-├── schemas.py           # Pydantic schemas for request/response validation
-├── crud.py              # CRUD operations for database interactions
-├── auth.py              # Authentication and JWT token handling
-├── dependencies.py      # FastAPI dependencies for authentication
-├── config.py            # Configuration settings
-├── setup_postgres.py    # PostgreSQL setup script
-├── requirements.txt     # Python dependencies
-├── README.md           # Project documentation
-└── tests/              # Test suite
-    ├── __init__.py
-    ├── test_auth.py    # Authentication tests
-    ├── test_menu.py    # Menu item tests
-    └── test_orders.py  # Order management tests
+├── 📁 main.py                 # FastAPI application with all endpoints
+├── 📁 database.py             # Database configuration and session management
+├── 📁 models.py               # SQLAlchemy models for database tables
+├── 📁 schemas.py              # Pydantic schemas for request/response validation
+├── 📁 crud.py                 # CRUD operations for database interactions
+├── 📁 auth.py                 # Authentication and JWT token handling
+├── 📁 dependencies.py         # FastAPI dependencies for authentication
+├── 📁 config.py               # Configuration settings and environment variables
+├── 📁 setup_postgres.py       # PostgreSQL setup automation script
+├── 📁 requirements.txt        # Python dependencies
+├── 📁 .gitignore              # Git ignore rules
+├── 📁 README.md               # Project documentation
+└── 📁 tests/                  # Test suite
+    ├── 📁 __init__.py
+    ├── 📁 test_auth.py        # Authentication tests
+    ├── 📁 test_menu.py        # Menu item tests
+    └── 📁 test_orders.py      # Order management tests
 ```
 
-## Prerequisites
+## 🚀 Quick Start
 
-- Python 3.8+
-- PostgreSQL 12+
-- pip (Python package manager)
+### Prerequisites
 
-## Installation
+- **Python 3.8+**
+- **PostgreSQL 12+**
+- **pip** (Python package manager)
 
 ### 1. Install PostgreSQL
 
@@ -66,43 +69,42 @@ brew install postgresql
 brew services start postgresql
 ```
 
-### 2. Clone the Repository
+### 2. Clone and Setup
+
 ```bash
+# Clone the repository
 git clone <repository-url>
 cd food_order_system
-```
 
-### 3. Create Virtual Environment
-```bash
+# Create virtual environment
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
 
-### 4. Install Dependencies
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 5. Setup PostgreSQL Database
+### 3. Database Setup
 
-**Option A: Use the setup script (Recommended)**
+**Option A: Automated Setup (Recommended)**
 ```bash
 python3 setup_postgres.py
 ```
 
-**Option B: Manual setup**
+**Option B: Manual Setup**
 ```bash
-# Connect to PostgreSQL as postgres user
+# Connect to PostgreSQL
 sudo -u postgres psql
 
-# Create database and user
+# Create database
 CREATE DATABASE food_orders_db;
-CREATE USER food_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE food_orders_db TO food_user;
 \q
+
+# Create tables
+python3 -c "from database import engine; from models import Base; Base.metadata.create_all(bind=engine); print('✅ Tables created!')"
 ```
 
-### 6. Configure Environment Variables
+### 4. Environment Configuration
 
 Create a `.env` file in the project root:
 ```bash
@@ -118,82 +120,99 @@ SECRET_KEY=your-secret-key-here-change-in-production
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
-### 7. Create Database Tables
-```bash
-python3 -c "from database import engine; from models import Base; Base.metadata.create_all(bind=engine); print('Tables created successfully!')"
-```
+### 5. Run the Application
 
-## Running the Application
-
-1. Start the FastAPI server:
 ```bash
 python3 -m uvicorn main:app --reload
 ```
 
-2. Access the API documentation:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+Access the application:
+- 🌐 **API Documentation (Swagger UI)**: http://localhost:8000/docs
+- 📖 **Alternative Documentation (ReDoc)**: http://localhost:8000/redoc
+- 🏠 **API Root**: http://localhost:8000
 
-## API Endpoints
+## 📚 API Endpoints
 
-### Authentication
-- `POST /register` - Register a new user
-- `POST /token` - Login and get access token
-- `GET /users/me` - Get current user profile
+### 🔐 Authentication
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/register` | Register a new user | ❌ |
+| `POST` | `/token` | Login and get access token | ❌ |
+| `GET` | `/users/me` | Get current user profile | ✅ |
 
-### Menu Items
-- `GET /menu` - Get all menu items
-- `GET /menu/{item_id}` - Get specific menu item
-- `POST /menu` - Create new menu item (authenticated)
-- `PUT /menu/{item_id}` - Update menu item (authenticated)
-- `DELETE /menu/{item_id}` - Delete menu item (authenticated)
+### 🍽️ Menu Items
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/menu` | Get all menu items | ❌ |
+| `GET` | `/menu/{item_id}` | Get specific menu item | ❌ |
+| `POST` | `/menu` | Create new menu item | ✅ |
+| `PUT` | `/menu/{item_id}` | Update menu item | ✅ |
+| `DELETE` | `/menu/{item_id}` | Delete menu item | ✅ |
 
-### Orders
-- `GET /orders` - Get user's orders (authenticated)
-- `GET /orders/{order_id}` - Get specific order (authenticated)
-- `POST /orders` - Create new order (authenticated)
-- `PUT /orders/{order_id}` - Update order (authenticated)
-- `DELETE /orders/{order_id}` - Delete order (authenticated)
+### 🛒 Orders
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/orders` | Get user's orders | ✅ |
+| `GET` | `/orders/{order_id}` | Get specific order | ✅ |
+| `POST` | `/orders` | Create new order | ✅ |
+| `PUT` | `/orders/{order_id}` | Update order | ✅ |
+| `DELETE` | `/orders/{order_id}` | Delete order | ✅ |
 
-## Database Models
+## 🗄️ Database Schema
 
-### User
-- `id`: Primary key
-- `username`: Unique username
-- `email`: Unique email address
-- `hashed_password`: Encrypted password
-- `is_active`: Account status
-- `created_at`: Registration timestamp
+### 👤 Users Table
+```sql
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR UNIQUE NOT NULL,
+    email VARCHAR UNIQUE NOT NULL,
+    hashed_password VARCHAR NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
-### MenuItem
-- `id`: Primary key
-- `name`: Item name
-- `description`: Item description
-- `price`: Item price
-- `category`: Item category
-- `is_available`: Availability status
-- `created_at`: Creation timestamp
+### 🍽️ Menu Items Table
+```sql
+CREATE TABLE menu_items (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    category VARCHAR NOT NULL,
+    is_available BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
-### Order
-- `id`: Primary key
-- `user_id`: Foreign key to User
-- `total_amount`: Order total
-- `status`: Order status (pending, confirmed, preparing, delivered, cancelled)
-- `delivery_address`: Delivery address
-- `phone_number`: Contact phone number
-- `created_at`: Order creation timestamp
-- `updated_at`: Last update timestamp
+### 🛒 Orders Table
+```sql
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    total_amount DECIMAL(10,2) NOT NULL,
+    status VARCHAR DEFAULT 'pending',
+    delivery_address TEXT NOT NULL,
+    phone_number VARCHAR NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
-### OrderItem
-- `id`: Primary key
-- `order_id`: Foreign key to Order
-- `menu_item_id`: Foreign key to MenuItem
-- `quantity`: Item quantity
-- `price`: Item price at time of order
+### 📦 Order Items Table
+```sql
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES orders(id),
+    menu_item_id INTEGER REFERENCES menu_items(id),
+    quantity INTEGER NOT NULL,
+    price DECIMAL(10,2) NOT NULL
+);
+```
 
-## Usage Examples
+## 💡 Usage Examples
 
-### 1. Register a User
+### 1. Register a New User
 ```bash
 curl -X POST "http://localhost:8000/register" \
      -H "Content-Type: application/json" \
@@ -241,72 +260,141 @@ curl -X POST "http://localhost:8000/orders" \
      }'
 ```
 
-## Testing
+## 🧪 Testing
 
-Run the test suite:
+Run the complete test suite:
 ```bash
 pytest tests/
 ```
 
-Run specific test files:
+Run specific test categories:
 ```bash
+# Authentication tests
 pytest tests/test_auth.py
+
+# Menu management tests
 pytest tests/test_menu.py
+
+# Order management tests
 pytest tests/test_orders.py
 ```
 
-## Security Features
-
-- **Password Hashing**: Passwords are hashed using bcrypt
-- **JWT Authentication**: Secure token-based authentication
-- **Input Validation**: Pydantic schemas for request validation
-- **SQL Injection Protection**: SQLAlchemy ORM prevents SQL injection
-- **CORS Support**: Configurable CORS for frontend integration
-
-## Configuration
+## 🔧 Configuration
 
 ### Environment Variables
-- `DB_USER`: PostgreSQL username (default: postgres)
-- `DB_PASSWORD`: PostgreSQL password (default: password)
-- `DB_HOST`: PostgreSQL host (default: localhost)
-- `DB_PORT`: PostgreSQL port (default: 5432)
-- `DB_NAME`: Database name (default: food_orders_db)
-- `SECRET_KEY`: JWT secret key (change in production)
-- `ACCESS_TOKEN_EXPIRE_MINUTES`: Token expiration time (default: 30)
 
-### Database Configuration
-The system uses PostgreSQL by default. You can modify the database configuration in `config.py` or by setting environment variables.
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `DB_USER` | PostgreSQL username | `postgres` |
+| `DB_PASSWORD` | PostgreSQL password | `password` |
+| `DB_HOST` | Database host | `localhost` |
+| `DB_PORT` | Database port | `5432` |
+| `DB_NAME` | Database name | `food_orders_db` |
+| `SECRET_KEY` | JWT secret key | `your-secret-key-here-change-in-production` |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Token expiration time | `30` |
 
-## Troubleshooting
+### Production Configuration
+
+For production deployment, make sure to:
+
+1. **Change the SECRET_KEY** to a strong, random string
+2. **Use environment variables** for all sensitive configuration
+3. **Set up proper PostgreSQL credentials**
+4. **Enable HTTPS** for secure communication
+5. **Configure CORS** for your frontend domain
+
+## 🛡️ Security Features
+
+- **🔐 Password Hashing** - Bcrypt encryption for user passwords
+- **🎫 JWT Authentication** - Secure token-based authentication
+- **✅ Input Validation** - Pydantic schemas for request validation
+- **🛡️ SQL Injection Protection** - SQLAlchemy ORM prevents SQL injection
+- **🔒 CORS Support** - Configurable CORS for frontend integration
+- **⏰ Token Expiration** - Configurable JWT token expiration
+
+## 🚀 Deployment
+
+### Docker Deployment
+
+Create a `Dockerfile`:
+```dockerfile
+FROM python:3.9-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### Environment Setup for Production
+
+```bash
+# Set production environment variables
+export DB_USER=your_production_user
+export DB_PASSWORD=your_secure_password
+export DB_HOST=your_production_host
+export DB_NAME=your_production_db
+export SECRET_KEY=your_very_secure_secret_key
+export ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
 1. **PostgreSQL Connection Error**
-   - Ensure PostgreSQL is running: `sudo systemctl status postgresql`
-   - Check if the database exists: `psql -U postgres -l`
-   - Verify credentials in `.env` file
+   ```bash
+   # Check if PostgreSQL is running
+   sudo systemctl status postgresql
+   
+   # Check database connection
+   psql -U postgres -d food_orders_db
+   ```
 
-2. **Permission Denied**
-   - Make sure the PostgreSQL user has proper permissions
-   - Check if the database exists and is accessible
+2. **Import Errors**
+   ```bash
+   # Ensure all dependencies are installed
+   pip install -r requirements.txt
+   
+   # Activate virtual environment
+   source venv/bin/activate
+   ```
 
-3. **Import Errors**
-   - Ensure all dependencies are installed: `pip install -r requirements.txt`
-   - Activate the virtual environment
+3. **Permission Denied**
+   ```bash
+   # Check PostgreSQL user permissions
+   sudo -u postgres psql -c "\du"
+   ```
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Run the test suite
-6. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
+## 🆘 Support
 
-For support and questions, please open an issue in the repository. 
+- 📧 **Email**: [your-email@example.com]
+- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/food-order-system/issues)
+- 📖 **Documentation**: [API Docs](http://localhost:8000/docs)
+
+## 🙏 Acknowledgments
+
+- **FastAPI** - Modern, fast web framework
+- **SQLAlchemy** - SQL toolkit and ORM
+- **PostgreSQL** - Advanced open-source database
+- **Pydantic** - Data validation using Python type annotations
+
+---
+
+**Made with ❤️ for the food ordering industry** 
