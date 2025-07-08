@@ -13,28 +13,55 @@ A modern, scalable food ordering and management system built with **FastAPI**, *
 - 🧪 **Comprehensive Testing** - Full test suite with pytest
 - 🔧 **Environment Configuration** - Flexible configuration management
 - 📚 **Auto-generated Docs** - Interactive API documentation with Swagger UI
+- 🔄 **Database Migrations** - Alembic for database schema management
+- 🛡️ **Security Features** - Input validation, CORS, and security headers
 
 ## 🏗️ Project Structure
 
 ```
 food_order_system/
-├── 📁 main.py                 # FastAPI application with all endpoints
-├── 📁 database.py             # Database configuration and session management
-├── 📁 models.py               # SQLAlchemy models for database tables
-├── 📁 schemas.py              # Pydantic schemas for request/response validation
-├── 📁 crud.py                 # CRUD operations for database interactions
-├── 📁 auth.py                 # Authentication and JWT token handling
-├── 📁 dependencies.py         # FastAPI dependencies for authentication
-├── 📁 config.py               # Configuration settings and environment variables
-├── 📁 setup_postgres.py       # PostgreSQL setup automation script
-├── 📁 requirements.txt        # Python dependencies
-├── 📁 .gitignore              # Git ignore rules
-├── 📁 README.md               # Project documentation
-└── 📁 tests/                  # Test suite
-    ├── 📁 __init__.py
-    ├── 📁 test_auth.py        # Authentication tests
-    ├── 📁 test_menu.py        # Menu item tests
-    └── 📁 test_orders.py      # Order management tests
+├── 📁 app/                          # Main application package
+│   ├── 📁 api/                      # API layer
+│   │   └── 📁 v1/                   # API version 1
+│   │       └── 📁 endpoints/        # API endpoints
+│   │           ├── 📄 auth.py       # Authentication endpoints
+│   │           ├── 📄 users.py      # User management endpoints
+│   │           ├── 📄 menu.py       # Menu item endpoints
+│   │           └── 📄 orders.py     # Order management endpoints
+│   ├── 📁 core/                     # Core application logic
+│   │   ├── 📄 config.py             # Configuration settings
+│   │   └── 📄 security.py           # Security utilities
+│   ├── 📁 db/                       # Database layer
+│   │   └── 📄 base.py               # Database configuration
+│   ├── 📁 models/                   # Database models
+│   │   ├── 📄 user.py               # User model
+│   │   ├── 📄 menu_item.py          # Menu item model
+│   │   ├── 📄 order.py              # Order model
+│   │   └── 📄 order_item.py         # Order item model
+│   ├── 📁 schemas/                  # Pydantic schemas
+│   │   ├── 📄 user.py               # User schemas
+│   │   ├── 📄 auth.py               # Authentication schemas
+│   │   ├── 📄 menu.py               # Menu item schemas
+│   │   └── 📄 order.py              # Order schemas
+│   ├── 📁 services/                 # Business logic layer
+│   │   ├── 📄 user_service.py       # User business logic
+│   │   ├── 📄 menu_service.py       # Menu business logic
+│   │   └── 📄 order_service.py      # Order business logic
+│   ├── 📁 utils/                    # Utility functions
+│   ├── 📄 main.py                   # FastAPI application
+│   └── 📄 __init__.py               # App package init
+├── 📁 alembic/                      # Database migrations
+├── 📁 scripts/                      # Utility scripts
+├── 📁 docs/                         # Documentation
+├── 📁 deployments/                  # Deployment configurations
+├── 📄 main.py                       # Application entry point
+├── 📄 requirements.txt              # Python dependencies
+├── 📄 pyproject.toml                # Modern Python project config
+├── 📄 Makefile                      # Development tasks
+├── 📄 .pre-commit-config.yaml       # Pre-commit hooks
+├── 📄 alembic.ini                   # Alembic configuration
+├── 📄 .gitignore                    # Git ignore rules
+└── 📄 README.md                     # Project documentation
 ```
 
 ## 🚀 Quick Start
@@ -43,33 +70,9 @@ food_order_system/
 
 - **Python 3.8+**
 - **PostgreSQL 12+**
-- **pip** (Python package manager)
+- **Make** (optional, for using Makefile commands)
 
-### 1. Install PostgreSQL
-
-**Ubuntu/Debian:**
-```bash
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
-```
-
-**CentOS/RHEL:**
-```bash
-sudo yum install postgresql postgresql-server
-sudo postgresql-setup initdb
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
-```
-
-**macOS:**
-```bash
-brew install postgresql
-brew services start postgresql
-```
-
-### 2. Clone and Setup
+### 1. Clone and Setup
 
 ```bash
 # Clone the repository
@@ -81,82 +84,142 @@ python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+make install-dev
+# Or manually: pip install -e ".[dev,test]"
 ```
 
-### 3. Database Setup
+### 2. Database Setup
 
-**Option A: Automated Setup (Recommended)**
 ```bash
-python3 setup_postgres.py
-```
-
-**Option B: Manual Setup**
-```bash
-# Connect to PostgreSQL
-sudo -u postgres psql
+# Start PostgreSQL (if not running)
+sudo systemctl start postgresql
 
 # Create database
-CREATE DATABASE food_orders_db;
-\q
+sudo -u postgres createdb food_orders_db
 
-# Create tables
-python3 -c "from database import engine; from models import Base; Base.metadata.create_all(bind=engine); print('✅ Tables created!')"
+# Setup database tables
+make setup-db
 ```
 
-### 4. Environment Configuration
+### 3. Environment Configuration
 
 Create a `.env` file in the project root:
 ```bash
 # PostgreSQL Database Configuration
 DB_USER=postgres
-DB_PASSWORD=password
+DB_PASSWORD=your_secure_password
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=food_orders_db
 
 # JWT Configuration
-SECRET_KEY=your-secret-key-here-change-in-production
+SECRET_KEY=your-very-secure-secret-key-at-least-32-characters-long
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Application Configuration
+DEBUG=true
+CORS_ORIGINS=["http://localhost:3000", "http://localhost:8080"]
 ```
 
-### 5. Run the Application
+### 4. Run the Application
 
 ```bash
-python3 -m uvicorn main:app --reload
+# Run with Makefile
+make run
+
+# Or manually
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Access the application:
+### 5. Access the Application
+
 - 🌐 **API Documentation (Swagger UI)**: http://localhost:8000/docs
 - 📖 **Alternative Documentation (ReDoc)**: http://localhost:8000/redoc
 - 🏠 **API Root**: http://localhost:8000
+
+## 🛠️ Development
+
+### Available Commands
+
+```bash
+# Show all available commands
+make help
+
+# Code quality
+make format          # Format code with black and isort
+make lint            # Run linting checks
+make test            # Run tests
+make test-cov        # Run tests with coverage
+
+# Database operations
+make setup-db        # Create database tables
+make migrate         # Create new migration
+make migrate-up      # Apply migrations
+make migrate-down    # Rollback migrations
+
+# Cleanup
+make clean           # Clean cache files
+```
+
+### Pre-commit Hooks
+
+```bash
+# Install pre-commit hooks
+pre-commit install
+
+# Run manually
+pre-commit run --all-files
+```
+
+### Testing
+
+```bash
+# Run all tests
+make test
+
+# Run with coverage
+make test-cov
+
+# Run specific test file
+pytest tests/test_auth.py -v
+
+# Run with specific markers
+pytest -m "not slow"  # Skip slow tests
+```
 
 ## 📚 API Endpoints
 
 ### 🔐 Authentication
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| `POST` | `/register` | Register a new user | ❌ |
-| `POST` | `/token` | Login and get access token | ❌ |
-| `GET` | `/users/me` | Get current user profile | ✅ |
+| `POST` | `/api/v1/auth/register` | Register a new user | ❌ |
+| `POST` | `/api/v1/auth/token` | Login and get access token | ❌ |
+| `POST` | `/api/v1/auth/login` | Login with JSON payload | ❌ |
+
+### 👤 User Management
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/v1/users/me` | Get current user profile | ✅ |
+| `PUT` | `/api/v1/users/me` | Update current user | ✅ |
+| `DELETE` | `/api/v1/users/me` | Delete current user | ✅ |
 
 ### 🍽️ Menu Items
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| `GET` | `/menu` | Get all menu items | ❌ |
-| `GET` | `/menu/{item_id}` | Get specific menu item | ❌ |
-| `POST` | `/menu` | Create new menu item | ✅ |
-| `PUT` | `/menu/{item_id}` | Update menu item | ✅ |
-| `DELETE` | `/menu/{item_id}` | Delete menu item | ✅ |
+| `GET` | `/api/v1/menu` | Get all menu items | ❌ |
+| `GET` | `/api/v1/menu/{item_id}` | Get specific menu item | ❌ |
+| `POST` | `/api/v1/menu` | Create new menu item | ✅ |
+| `PUT` | `/api/v1/menu/{item_id}` | Update menu item | ✅ |
+| `DELETE` | `/api/v1/menu/{item_id}` | Delete menu item | ✅ |
 
 ### 🛒 Orders
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| `GET` | `/orders` | Get user's orders | ✅ |
-| `GET` | `/orders/{order_id}` | Get specific order | ✅ |
-| `POST` | `/orders` | Create new order | ✅ |
-| `PUT` | `/orders/{order_id}` | Update order | ✅ |
-| `DELETE` | `/orders/{order_id}` | Delete order | ✅ |
+| `GET` | `/api/v1/orders` | Get user's orders | ✅ |
+| `GET` | `/api/v1/orders/{order_id}` | Get specific order | ✅ |
+| `POST` | `/api/v1/orders` | Create new order | ✅ |
+| `PUT` | `/api/v1/orders/{order_id}` | Update order | ✅ |
+| `DELETE` | `/api/v1/orders/{order_id}` | Delete order | ✅ |
 
 ## 🗄️ Database Schema
 
@@ -168,7 +231,9 @@ CREATE TABLE users (
     email VARCHAR UNIQUE NOT NULL,
     hashed_password VARCHAR NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    is_superuser BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
@@ -181,7 +246,9 @@ CREATE TABLE menu_items (
     price DECIMAL(10,2) NOT NULL,
     category VARCHAR NOT NULL,
     is_available BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    image_url VARCHAR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
@@ -194,6 +261,7 @@ CREATE TABLE orders (
     status VARCHAR DEFAULT 'pending',
     delivery_address TEXT NOT NULL,
     phone_number VARCHAR NOT NULL,
+    notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -210,75 +278,6 @@ CREATE TABLE order_items (
 );
 ```
 
-## 💡 Usage Examples
-
-### 1. Register a New User
-```bash
-curl -X POST "http://localhost:8000/register" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "username": "john_doe",
-       "email": "john@example.com",
-       "password": "securepassword123"
-     }'
-```
-
-### 2. Login and Get Token
-```bash
-curl -X POST "http://localhost:8000/token" \
-     -H "Content-Type: application/x-www-form-urlencoded" \
-     -d "username=john_doe&password=securepassword123"
-```
-
-### 3. Create a Menu Item
-```bash
-curl -X POST "http://localhost:8000/menu" \
-     -H "Authorization: Bearer YOUR_TOKEN" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "name": "Margherita Pizza",
-       "description": "Classic pizza with tomato and mozzarella",
-       "price": 12.99,
-       "category": "Pizza"
-     }'
-```
-
-### 4. Create an Order
-```bash
-curl -X POST "http://localhost:8000/orders" \
-     -H "Authorization: Bearer YOUR_TOKEN" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "delivery_address": "123 Main St, City, State",
-       "phone_number": "1234567890",
-       "items": [
-         {
-           "menu_item_id": 1,
-           "quantity": 2
-         }
-       ]
-     }'
-```
-
-## 🧪 Testing
-
-Run the complete test suite:
-```bash
-pytest tests/
-```
-
-Run specific test categories:
-```bash
-# Authentication tests
-pytest tests/test_auth.py
-
-# Menu management tests
-pytest tests/test_menu.py
-
-# Order management tests
-pytest tests/test_orders.py
-```
-
 ## 🔧 Configuration
 
 ### Environment Variables
@@ -292,16 +291,68 @@ pytest tests/test_orders.py
 | `DB_NAME` | Database name | `food_orders_db` |
 | `SECRET_KEY` | JWT secret key | `your-secret-key-here-change-in-production` |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Token expiration time | `30` |
+| `DEBUG` | Debug mode | `False` |
+| `CORS_ORIGINS` | Allowed CORS origins | `["http://localhost:3000"]` |
 
 ### Production Configuration
 
-For production deployment, make sure to:
+For production deployment:
 
 1. **Change the SECRET_KEY** to a strong, random string
-2. **Use environment variables** for all sensitive configuration
-3. **Set up proper PostgreSQL credentials**
-4. **Enable HTTPS** for secure communication
-5. **Configure CORS** for your frontend domain
+2. **Set DEBUG=False**
+3. **Use environment variables** for all sensitive configuration
+4. **Set up proper PostgreSQL credentials**
+5. **Enable HTTPS** for secure communication
+6. **Configure CORS** for your frontend domain
+
+## 🧪 Testing
+
+### Running Tests
+```bash
+# Run all tests
+make test
+
+# Run with coverage
+make test-cov
+
+# Run specific test categories
+pytest tests/test_auth.py -v
+pytest tests/test_menu.py -v
+pytest tests/test_orders.py -v
+```
+
+### Test Structure
+```
+tests/
+├── 📁 conftest.py           # Test configuration and fixtures
+├── 📁 test_auth.py          # Authentication tests
+├── 📁 test_menu.py          # Menu item tests
+├── 📁 test_orders.py        # Order management tests
+└── 📁 test_integration.py   # Integration tests
+```
+
+## 🚀 Deployment
+
+### Environment Setup for Production
+```bash
+# Set production environment variables
+export DB_USER=your_production_user
+export DB_PASSWORD=your_secure_password
+export DB_HOST=your_production_host
+export DB_NAME=your_production_db
+export SECRET_KEY=your_very_secure_secret_key
+export DEBUG=false
+export ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
+
+### Production Server Setup
+```bash
+# Install production dependencies
+pip install -r requirements.txt
+
+# Run with production server
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+```
 
 ## 🛡️ Security Features
 
@@ -311,36 +362,8 @@ For production deployment, make sure to:
 - **🛡️ SQL Injection Protection** - SQLAlchemy ORM prevents SQL injection
 - **🔒 CORS Support** - Configurable CORS for frontend integration
 - **⏰ Token Expiration** - Configurable JWT token expiration
-
-## 🚀 Deployment
-
-### Docker Deployment
-
-Create a `Dockerfile`:
-```dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-EXPOSE 8000
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-### Environment Setup for Production
-
-```bash
-# Set production environment variables
-export DB_USER=your_production_user
-export DB_PASSWORD=your_secure_password
-export DB_HOST=your_production_host
-export DB_NAME=your_production_db
-export SECRET_KEY=your_very_secure_secret_key
-export ACCESS_TOKEN_EXPIRE_MINUTES=60
-```
+- **🔍 Security Headers** - Automatic security headers
+- **🛡️ Rate Limiting** - Configurable rate limiting (optional)
 
 ## 🐛 Troubleshooting
 
@@ -358,25 +381,47 @@ export ACCESS_TOKEN_EXPIRE_MINUTES=60
 2. **Import Errors**
    ```bash
    # Ensure all dependencies are installed
-   pip install -r requirements.txt
+   make install-dev
    
    # Activate virtual environment
    source venv/bin/activate
    ```
 
-3. **Permission Denied**
+3. **Database Migration Issues**
    ```bash
-   # Check PostgreSQL user permissions
-   sudo -u postgres psql -c "\du"
+   # Reset migrations
+   alembic downgrade base
+   alembic upgrade head
+   ```
+
+4. **Port Already in Use**
+   ```bash
+   # Check what's using port 8000
+   lsof -i :8000
+   
+   # Kill the process
+   kill -9 <PID>
    ```
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Install development dependencies (`make install-dev`)
+4. Set up pre-commit hooks (`pre-commit install`)
+5. Make your changes
+6. Run tests (`make test`)
+7. Commit your changes (`git commit -m 'Add amazing feature'`)
+8. Push to the branch (`git push origin feature/amazing-feature`)
+9. Open a Pull Request
+
+### Development Guidelines
+
+- Follow PEP 8 style guidelines
+- Write comprehensive tests
+- Update documentation
+- Use conventional commit messages
+- Run pre-commit hooks before committing
 
 ## 📄 License
 
@@ -387,6 +432,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 📧 **Email**: [your-email@example.com]
 - 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/food-order-system/issues)
 - 📖 **Documentation**: [API Docs](http://localhost:8000/docs)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/food-order-system/discussions)
 
 ## 🙏 Acknowledgments
 
@@ -394,6 +440,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **SQLAlchemy** - SQL toolkit and ORM
 - **PostgreSQL** - Advanced open-source database
 - **Pydantic** - Data validation using Python type annotations
+- **Alembic** - Database migration tool
 
 ---
 
