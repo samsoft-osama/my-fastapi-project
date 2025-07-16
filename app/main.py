@@ -41,8 +41,7 @@ async def root():
         "endpoints": {
             "authentication": [
                 f"{settings.API_V1_STR}/auth/register",
-                f"{settings.API_V1_STR}/auth/token",
-                f"{settings.API_V1_STR}/auth/login"
+                f"{settings.API_V1_STR}/auth/token"
             ],
             "users": [
                 f"{settings.API_V1_STR}/users/me"
